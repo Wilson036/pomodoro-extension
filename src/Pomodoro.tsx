@@ -18,22 +18,73 @@ const PomodoroTimer: React.FC = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const intervalRef = useRef<number | null>(null);
 
-  // 從 Chrome storage 載入設定
+  // 從 Chrome storage 載入設定和狀態
   useEffect(() => {
     if (chrome?.storage) {
       chrome.storage.local.get(
-        ["totalCycles", "workDuration", "breakDuration"],
+        [
+          "totalCycles",
+          "workDuration",
+          "breakDuration",
+          "currentCycle",
+          "isWorking",
+          "timeLeft",
+          "isRunning",
+          "showSettings",
+          "startTime",
+        ],
         (result) => {
+          // 載入設定
           if (result.totalCycles) setTotalCycles(result.totalCycles);
-          if (result.workDuration) {
-            setWorkDuration(result.workDuration);
-            setTimeLeft(result.workDuration * 60);
-          }
+          if (result.workDuration) setWorkDuration(result.workDuration);
           if (result.breakDuration) setBreakDuration(result.breakDuration);
+
+          // 載入計時器狀態
+          if (result.currentCycle) setCurrentCycle(result.currentCycle);
+          if (result.isWorking !== undefined) setIsWorking(result.isWorking);
+          if (result.showSettings !== undefined)
+            setShowSettings(result.showSettings);
+
+          // 如果計時器在運行，計算實際剩餘時間
+          if (result.isRunning && result.startTime && result.timeLeft) {
+            const elapsed = Math.floor((Date.now() - result.startTime) / 1000);
+            const newTimeLeft = Math.max(0, result.timeLeft - elapsed);
+            setTimeLeft(newTimeLeft);
+            setIsRunning(newTimeLeft > 0);
+          } else if (result.timeLeft !== undefined) {
+            setTimeLeft(result.timeLeft);
+            setIsRunning(false);
+          }
         }
       );
     }
   }, []);
+
+  // 保存所有狀態到 Chrome storage
+  useEffect(() => {
+    if (chrome?.storage) {
+      chrome.storage.local.set({
+        totalCycles,
+        workDuration,
+        breakDuration,
+        currentCycle,
+        isWorking,
+        timeLeft,
+        isRunning,
+        showSettings,
+        startTime: isRunning ? Date.now() : null,
+      });
+    }
+  }, [
+    totalCycles,
+    workDuration,
+    breakDuration,
+    currentCycle,
+    isWorking,
+    timeLeft,
+    isRunning,
+    showSettings,
+  ]);
 
   // 保存設定到 Chrome storage
   const saveSettings = () => {
