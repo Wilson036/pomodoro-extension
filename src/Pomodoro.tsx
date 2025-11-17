@@ -7,6 +7,7 @@ const PomodoroTimer: React.FC = () => {
   const [totalCycles, setTotalCycles] = useState<number>(4);
   const [workDuration, setWorkDuration] = useState<number>(25);
   const [breakDuration, setBreakDuration] = useState<number>(5);
+  const [blockedSites, setBlockedSites] = useState<string[]>([]);
 
   // 計時器狀態
   const [currentCycle, setCurrentCycle] = useState<number>(1);
@@ -26,6 +27,7 @@ const PomodoroTimer: React.FC = () => {
           "totalCycles",
           "workDuration",
           "breakDuration",
+          "blockedSites",
           "currentCycle",
           "isWorking",
           "timeLeft",
@@ -38,6 +40,7 @@ const PomodoroTimer: React.FC = () => {
           if (result.totalCycles) setTotalCycles(result.totalCycles);
           if (result.workDuration) setWorkDuration(result.workDuration);
           if (result.breakDuration) setBreakDuration(result.breakDuration);
+          if (result.blockedSites) setBlockedSites(result.blockedSites);
 
           // 載入計時器狀態
           if (result.currentCycle) setCurrentCycle(result.currentCycle);
@@ -60,31 +63,41 @@ const PomodoroTimer: React.FC = () => {
     }
   }, []);
 
-  // 保存所有狀態到 Chrome storage
+  // 保存設定和計時器狀態到 Chrome storage（不包含 timeLeft）
   useEffect(() => {
     if (chrome?.storage) {
-      chrome.storage.local.set({
-        totalCycles,
-        workDuration,
-        breakDuration,
-        currentCycle,
-        isWorking,
-        timeLeft,
-        isRunning,
-        showSettings,
-        startTime: isRunning ? Date.now() : null,
+      chrome.storage.local.get(["startTime"], (result) => {
+        const updates = {
+          totalCycles,
+          workDuration,
+          breakDuration,
+          blockedSites,
+          currentCycle,
+          isWorking,
+          isRunning,
+          showSettings,
+          startTime: isRunning ? (result.startTime || Date.now()) : null,
+        };
+        chrome.storage.local.set(updates);
       });
     }
   }, [
     totalCycles,
     workDuration,
     breakDuration,
+    blockedSites,
     currentCycle,
     isWorking,
-    timeLeft,
     isRunning,
     showSettings,
   ]);
+
+  // 單獨保存 timeLeft，避免頻繁觸發其他邏輯
+  useEffect(() => {
+    if (chrome?.storage && isRunning) {
+      chrome.storage.local.set({ timeLeft });
+    }
+  }, [timeLeft, isRunning]);
 
   // 保存設定到 Chrome storage
   const saveSettings = () => {
@@ -291,11 +304,13 @@ const PomodoroTimer: React.FC = () => {
             totalCycles={totalCycles}
             workDuration={workDuration}
             breakDuration={breakDuration}
+            blockedSites={blockedSites}
             isRunning={isRunning}
             isWorking={isWorking}
             onTotalCyclesChange={setTotalCycles}
             onWorkDurationChange={handleWorkDurationChange}
             onBreakDurationChange={handleBreakDurationChange}
+            onBlockedSitesChange={setBlockedSites}
             onStart={startNewTimer}
           />
         )}

@@ -32,8 +32,10 @@ module.exports = {
         { from: 'public/manifest.json', to: 'manifest.json' },
         { from: 'public/popup.html', to: 'popup.html' },
         { from: 'public/background.js', to: 'background.js' },
-        { 
-          from: 'public/icons', 
+        { from: 'public/blocked.html', to: 'blocked.html' },
+        { from: 'public/blocked.js', to: 'blocked.js' },
+        {
+          from: 'public/icons',
           to: 'icons',
           noErrorOnMissing: true
         },

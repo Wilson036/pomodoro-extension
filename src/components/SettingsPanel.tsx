@@ -1,5 +1,6 @@
 import React from "react";
 import { Settings } from "lucide-react";
+import BlockedSitesSettings from "./BlockedSitesSettings";
 
 interface SettingsPanelProps {
   totalCycles: number;
@@ -7,9 +8,11 @@ interface SettingsPanelProps {
   breakDuration: number;
   isRunning: boolean;
   isWorking: boolean;
+  blockedSites: string[];
   onTotalCyclesChange: (value: number) => void;
   onWorkDurationChange: (value: number) => void;
   onBreakDurationChange: (value: number) => void;
+  onBlockedSitesChange: (sites: string[]) => void;
   onStart: () => void;
 }
 
@@ -17,11 +20,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   totalCycles,
   workDuration,
   breakDuration,
-  isRunning,
-  isWorking,
+  blockedSites,
   onTotalCyclesChange,
   onWorkDurationChange,
   onBreakDurationChange,
+  onBlockedSitesChange,
   onStart,
 }) => {
   return (
@@ -149,6 +152,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         </div>
       </div>
+
+      {/* 網站封鎖設定 */}
+      <BlockedSitesSettings
+        blockedSites={blockedSites}
+        onBlockedSitesChange={onBlockedSitesChange}
+      />
 
       <button
         onClick={onStart}
