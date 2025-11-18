@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "一個功能完整的番茄鐘 Chrome 插件",
   "scripts": {
-    "build": "webpack --mode production",
-    "dev": "webpack --mode development --watch",
+    "build": "vite build",
+    "dev": "vite build --watch",
     "clean": "rm -rf dist"
   },
   "keywords": [
@@ -19,13 +19,10 @@
     "@types/chrome": "^0.0.268",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "copy-webpack-plugin": "^11.0.0",
-    "css-loader": "^6.8.1",
-    "style-loader": "^3.3.3",
-    "ts-loader": "^9.5.0",
+    "@vitejs/plugin-react": "^5.1.1",
     "typescript": "^5.3.0",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
+    "vite": "^7.2.2",
+    "vite-plugin-static-copy": "^3.1.4"
   },
   "dependencies": {
     "lucide-react": "^0.263.1",
